@@ -128,7 +128,7 @@ class App:
         self.dir_entry.insert(0, directory)
 
     def get_savefile(self):
-        savefile = filedialog.asksaveasfilename()
+        savefile = filedialog.asksaveasfilename(filetypes=[("CSV files", "*.csv")])
         self.file_entry.delete(0, END)
         self.file_entry.insert(0, savefile)
 

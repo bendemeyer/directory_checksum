@@ -59,11 +59,10 @@ def get_file_md5(file):
     return hasher.hexdigest()
 
 
-parser = argparse.ArgumentParser(description="Tool to recurse through directories and generate a CSV of file metadata contained within")
-parser.add_argument("-d", "--directory", dest="directory", help="The directory to recurse through")
-parser.add_argument("-f", "--file", dest="file", help="The CSV file to create")
-args = parser.parse_args()
-
-
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Tool to recurse through directories and generate a CSV of file metadata contained within")
+    parser.add_argument("-d", "--directory", dest="directory", help="The directory to recurse through")
+    parser.add_argument("-f", "--file", dest="file", help="The CSV file to create")
+    args = parser.parse_args()
+
     build_checksum_csv(args.directory, args.file)
