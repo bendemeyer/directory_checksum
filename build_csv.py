@@ -1,6 +1,7 @@
 import os
 import csv
 import argparse
+from datetime import datetime
 from math import log
 from hashlib import md5
 
@@ -16,6 +17,7 @@ def build_checksum_csv(input_dir, output_file):
             "Date Last Modified",
             "MD5"
         ])
+        csv_writer.writeheader()
         add_dir_to_csv_recursive(input_dir, csv_writer)
 
 
@@ -25,13 +27,14 @@ def add_dir_to_csv_recursive(dir, csv_writer):
         if os.path.isdir(fullpath):
             add_dir_to_csv_recursive(fullpath, csv_writer)
         elif os.path.isfile(fullpath):
+            datetime_format = "%m-%d-%Y %H:%M:%S"
             row = {
                 "File Name": child,
                 "File Size": format_filesize(os.path.getsize(fullpath)),
                 "File Path": fullpath,
                 "File Extension": child.split(".")[-1],
-                # "Date Created": os.stat(fullpath)._st_birthtime,
-                "Date Last Modified": os.path.getmtime(fullpath),
+                "Date Created": get_file_created_datetime(fullpath, datetime_format),
+                "Date Last Modified": get_file_modified_datetime(fullpath, datetime_format),
                 "MD5": get_file_md5(fullpath)
             }
             csv_writer.writerow(row)
@@ -49,6 +52,22 @@ def format_filesize(num):
         return '0 bytes'
     if num == 1:
         return '1 byte'
+
+
+def get_file_created_datetime(file, format):
+    stat = os.stat(file)
+    if hasattr(stat, "st_birthtime"):
+        timestamp = int(stat.st_birthtime)
+    else:
+        timestamp = int(os.path.getctime(file))
+    dt = datetime.fromtimestamp(timestamp)
+    return dt.strftime(format)
+
+
+def get_file_modified_datetime(file, format):
+    timestamp = int(os.path.getmtime(file))
+    dt = datetime.fromtimestamp(timestamp)
+    return dt.strftime(format)
 
 
 def get_file_md5(file):
