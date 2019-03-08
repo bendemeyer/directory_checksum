@@ -18,26 +18,36 @@ def build_checksum_csv(input_dir, output_file):
             "MD5"
         ])
         csv_writer.writeheader()
-        add_dir_to_csv_recursive(input_dir, csv_writer)
+        paths_to_check = [input_dir]
+        while paths_to_check:
+            path = paths_to_check.pop(0)
+            new_paths = add_dir_to_csv(path, csv_writer)
+            paths_to_check.extend(new_paths)
 
 
-def add_dir_to_csv_recursive(dir, csv_writer):
-    for child in os.listdir(dir):
-        fullpath = os.path.join(dir, child)
+def add_dir_to_csv(path, csv_writer):
+    dirs = []
+    for child in os.listdir(path):
+        fullpath = os.path.join(path, child)
         if os.path.isdir(fullpath):
-            add_dir_to_csv_recursive(fullpath, csv_writer)
+            dirs.append(fullpath)
         elif os.path.isfile(fullpath):
-            datetime_format = "%m-%d-%Y %H:%M:%S"
-            row = {
-                "File Name": child,
-                "File Size": format_filesize(os.path.getsize(fullpath)),
-                "File Path": fullpath,
-                "File Extension": child.split(".")[-1],
-                "Date Created": get_file_created_datetime(fullpath, datetime_format),
-                "Date Last Modified": get_file_modified_datetime(fullpath, datetime_format),
-                "MD5": get_file_md5(fullpath)
-            }
+            row = format_file_row(child, fullpath)
             csv_writer.writerow(row)
+    return dirs
+
+
+def format_file_row(filename, fullpath):
+    datetime_format = "%m-%d-%Y %H:%M:%S"
+    return {
+        "File Name": filename,
+        "File Size": format_filesize(os.path.getsize(fullpath)),
+        "File Path": fullpath,
+        "File Extension": filename.split(".")[-1],
+        "Date Created": get_file_created_datetime(fullpath, datetime_format),
+        "Date Last Modified": get_file_modified_datetime(fullpath, datetime_format),
+        "MD5": get_file_md5(fullpath)
+    }
 
 
 def format_filesize(num):
