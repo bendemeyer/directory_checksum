@@ -22,7 +22,7 @@ def build_checksum_csv(input_dir, output_file):
         while paths_to_check:
             path = paths_to_check.pop(0)
             new_paths = add_dir_to_csv(path, csv_writer)
-            paths_to_check.extend(new_paths)
+            paths_to_check = new_paths + paths_to_check
 
 
 def add_dir_to_csv(path, csv_writer):
